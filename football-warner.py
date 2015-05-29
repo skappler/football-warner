@@ -7,9 +7,9 @@ def filter(tag):
 	return tag.has_attr('class') and "date" in tag['class']
 
 def dangerous(name):
-	dangers = ["liga", "WM", "EM", "Champions"]
+	dangers = ["liga", "wm", "em", "champions", "pokal", "euro"]
 	for danger in dangers:
-		if danger in name:
+		if danger in name.lower():
 			return True
 	return False
 
