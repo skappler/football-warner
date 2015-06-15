@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import urllib2
+import sys
 from bs4 import BeautifulSoup
 
 def filter(tag):
@@ -14,6 +15,17 @@ def dangerous(name):
 	return False
 
 def main():
+
+	# usage football-warner.py <name of day (german)> <Starting hour>
+	
+	day = "Donnerstag"
+	hour = 19
+	
+	if len(sys.argv) > 1:
+		day = sys.argv[1]
+		hour = int(sys.argv[2])
+		
+
 	response = urllib2.urlopen('http://www.fussballgucken.info/fussball-alle-termine')
 	html = response.read()
 	soup = BeautifulSoup(html)
@@ -21,7 +33,7 @@ def main():
 	dangerous_events = []
 	
 	for div in soup.find_all(filter):
-		if "Donnerstag" in  div.contents[0].contents[0].string:
+		if day.lower() in  div.contents[0].contents[0].string.lower():
 			sibling = div.find_next_sibling()
 			while "game" in sibling['id']:
 				
@@ -29,8 +41,8 @@ def main():
 				begin = int(time.split(":")[0])
 				matchtype = sibling.contents[0].contents[4].string
 				
-				if begin >= 19 and dangerous(matchtype):
-					dangerous_events.append((time,matchtype))
+				if begin >= hour and dangerous(matchtype):
+					dangerous_events.append((time,matchtype,day))
 				
 				sibling = sibling.find_next_sibling() 
 
@@ -39,7 +51,7 @@ def main():
 	else:
 		print "There are potentially evil things at hand!"
 		for event in dangerous_events:
-			print event[1], "at", event[0]
+			print event[1],"on", event[2], "at", event[0]
 
 if __name__ == "__main__":
 	main()
