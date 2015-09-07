@@ -3,6 +3,9 @@
 import urllib2
 import sys
 from bs4 import BeautifulSoup
+from smtplib import SMTP
+
+adresses = ["kappler_sebastian@gmx.net", "alex@alsclo.de"]
 
 def filter(tag):
 	return tag.has_attr('class') and "date" in tag['class']
@@ -47,11 +50,25 @@ def main():
 				sibling = sibling.find_next_sibling() 
 
 	if len(dangerous_events) == 0:
-		print "You're good to go!"
+		sendMail( "You're good to go!")
 	else:
-		print "There are potentially evil things at hand!"
+		msg = "There are potentially evil things at hand!\n"
 		for event in dangerous_events:
-			print event[1],"on", event[2], "at", event[0]
+			msg += event[1]+"on"+ event[2]+ "at"+ event[0]+"\n"
+		sendMail(msg)
+			
+def sendMail(msg):
+	global adresses
+	message = """From: Football <football@alsclo.de>
+	To: %s
+	Subject: Weekly Football Report
+
+	%s
+	""" % (', '.join(adresses),msg)
+	mail = SMTP()
+	mail.connect()
+	mail.sendmail('football@alsclo.de', adresses, message)
+	#print message
 
 if __name__ == "__main__":
 	main()
